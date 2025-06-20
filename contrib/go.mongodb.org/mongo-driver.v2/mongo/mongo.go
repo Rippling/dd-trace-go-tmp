@@ -42,7 +42,7 @@ type monitor struct {
 func (m *monitor) Started(ctx context.Context, evt *event.CommandStartedEvent) {
 	hostname, port := peerInfo(evt)
 	b, _ := bson.MarshalExtJSON(evt.Command, false, false)
-	if m.cfg.maxQuerySize > 0 {
+	if m.cfg.maxQuerySize > 0 && len(b) > m.cfg.maxQuerySize {
 		b = b[:m.cfg.maxQuerySize]
 	}
 	opts := []tracer.StartSpanOption{

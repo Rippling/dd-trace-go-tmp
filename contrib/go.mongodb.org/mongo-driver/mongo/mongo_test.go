@@ -178,7 +178,8 @@ func TestTruncation(t *testing.T) {
 	t.Run("zero", func(t *testing.T) {
 		// Should *not* truncate. The actual query contains a random session ID, so we just check the end which is deterministic.
 		actual := getQuery(t, 0)
-		assert.True(t, strings.HasSuffix(actual, `"u":{"$set":{"test-item":"test-value"}}}]}`))
+		wantSuffix := `"u":{"$set":{"test-item":"test-value"}}}]}`
+		assert.True(t, strings.HasSuffix(actual, `"u":{"$set":{"test-item":"test-value"}}}]}`), "query %q does not end with %q", actual, wantSuffix)
 	})
 
 	t.Run("positive", func(t *testing.T) {
@@ -190,6 +191,14 @@ func TestTruncation(t *testing.T) {
 	t.Run("negative", func(t *testing.T) {
 		// Should *not* truncate.
 		actual := getQuery(t, -1)
-		assert.True(t, strings.HasSuffix(actual, `"u":{"$set":{"test-item":"test-value"}}}]}`))
+		wantSuffix := `"u":{"$set":{"test-item":"test-value"}}}]}`
+		assert.True(t, strings.HasSuffix(actual, `"u":{"$set":{"test-item":"test-value"}}}]}`), "query %q does not end with %q", actual, wantSuffix)
+	})
+
+	t.Run("greater than query size", func(t *testing.T) {
+		// Should *not* truncate.
+		actual := getQuery(t, 1000) // arbitrary value > the size of the query we will be truncating
+		wantSuffix := `"u":{"$set":{"test-item":"test-value"}}}]}`
+		assert.True(t, strings.HasSuffix(actual, `"u":{"$set":{"test-item":"test-value"}}}]}`), "query %q does not end with %q", actual, wantSuffix)
 	})
 }
